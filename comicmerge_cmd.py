@@ -11,8 +11,10 @@ parser.add_argument('-r', '--range', nargs=2, metavar=('start', 'end'), type=int
                          'output file.')
 args = parser.parse_args()
 
+comics_to_merge = []
 if (len(args.range)) == 0:
-    comic_merge = ComicMerge(args.output_name, -1, -1, args.verbose)
+    comics_to_merge.extend(ComicMerge.comics_from_indices(0, -1))
 else:
-    comic_merge = ComicMerge(args.output_name, args.range[0], args.range[1], args.verbose)
+    comics_to_merge.extend(ComicMerge.comics_from_indices(args.range[0], args.range[1]))
+comic_merge = ComicMerge(args.output_name, comics_to_merge, args.verbose)
 comic_merge.merge()

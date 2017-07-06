@@ -4,18 +4,22 @@ import zipfile
 
 
 class ComicMerge:
-    def __init__(self, output_name, start_idx, end_idx, is_verbose=True):
+    def __init__(self, output_name, comics_to_merge, is_verbose=True):
         self.output_name = output_name
         if not self.output_name.endswith(".cbz"):
             self.output_name = self.output_name + ".cbz"
-        self.start_idx = start_idx
-        self.end_idx = end_idx
+        self.comics_to_merge = comics_to_merge
         self.is_verbose = is_verbose
 
     def _log(self, msg):
-        if self.is_verbose:
+        self._log_static(msg, self.is_verbose)
+
+    @staticmethod
+    def _log_static(msg, verbose):
+        if verbose:
             print(msg)
 
+    @staticmethod
     def _extract_cbz(self, file_name, destination):
         output_dir = os.path.join(destination, os.path.splitext(file_name)[0])
         os.mkdir(output_dir)
@@ -39,15 +43,10 @@ class ComicMerge:
             temp_dir = base_dir + str(mod)
         return temp_dir
 
-    def _extract_comics(self, temp_dir):
-        comic_idx = 1
-        for file_name in os.listdir('.'):  # We're not traversing subdirectories because that's a boondoggle
-            if os.path.splitext(file_name)[1] == '.cbz':
-                # If end_idx is -1, we want it all comics in one super-file,
-                # so extract EVERYTHING (that's an accepted file format)
-                if self.start_idx <= comic_idx <= self.end_idx or self.end_idx == -1:
-                    self._extract_cbz(file_name, temp_dir)
-                comic_idx += 1
+    @staticmethod
+    def _extract_comics(comics_to_extract, temp_dir, verbose):
+        for file_name in comics_to_extract:
+            ComicMerge._extract_cbz(file_name, temp_dir)
 
         # Flatten file structure (subdirectories mess with some readers)
         files_moved = 1
@@ -56,12 +55,12 @@ class ComicMerge:
                 file_path = os.path.join(path_to_dir, file_name)
                 ext = os.path.splitext(file_name)[1]
                 new_name = 'P' + str(files_moved).rjust(5, '0') + ext
-                self._log('Renaming & moving ' + file_name + ' to ' + new_name)
+                ComicMerge._log_static('Renaming & moving ' + file_name + ' to ' + new_name, verbose)
                 shutil.copy(file_path, os.path.join(temp_dir, new_name))
                 files_moved += 1
 
             # Deletes all subdirectories (in the end we want a flat structure)
-            # This will not effect walking through the rest of the directories,
+            # This will not affect walking through the rest of the directories,
             # because it is traversed from the bottom up instead of top down
             for subdir_name in subdir_names:
                 shutil.rmtree(os.path.join(path_to_dir, subdir_name))
@@ -79,6 +78,21 @@ class ComicMerge:
                 add_count += 1
                 if add_count % 10 == 0:
                     self._log(str(add_count) + ' files added.')
+
+    @staticmethod
+    # Passing in a start_idx of <= 0 will cause it to start at the beginning of the folder
+    # Passing in an end_idx of < 0 will cause it to end at the end of the folder
+    # Both start_idx and end_idx are inclusive
+    # Index count starts at 1
+    def comics_from_indices(start_idx, end_idx):
+        comics = []
+        comic_idx = 1
+        for file_name in os.listdir('.'):  # We're not traversing subdirectories because that's a boondoggle
+            if os.path.splitext(file_name)[1] == '.cbz':
+                if start_idx <= comic_idx and (comic_idx <= end_idx or end_idx < 0):
+                    comics.append(file_name)
+                comic_idx += 1
+        return comics
 
     def merge(self):
         # Remove existing file, if any (we're going to overwrite it anyway)
