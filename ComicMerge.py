@@ -6,6 +6,8 @@ import zipfile
 class ComicMerge:
     def __init__(self, output_name, start_idx, end_idx, is_verbose=True):
         self.output_name = output_name
+        if not self.output_name.endswith(".cbz"):
+            self.output_name = self.output_name + ".cbz"
         self.start_idx = start_idx
         self.end_idx = end_idx
         self.is_verbose = is_verbose
