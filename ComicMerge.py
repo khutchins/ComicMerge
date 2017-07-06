@@ -20,10 +20,10 @@ class ComicMerge:
             print(msg)
 
     @staticmethod
-    def _extract_cbz(self, file_name, destination):
+    def _extract_cbz(file_name, destination, verbose):
         output_dir = os.path.join(destination, os.path.splitext(file_name)[0])
         os.mkdir(output_dir)
-        self._log('Unzipping ' + file_name)
+        ComicMerge._log_static('Unzipping ' + file_name, verbose)
         zip_file = zipfile.ZipFile(file_name)
         zip_file.extractall(output_dir)
         zip_file.close()
@@ -46,7 +46,7 @@ class ComicMerge:
     @staticmethod
     def _extract_comics(comics_to_extract, temp_dir, verbose):
         for file_name in comics_to_extract:
-            ComicMerge._extract_cbz(file_name, temp_dir)
+            ComicMerge._extract_cbz(file_name, temp_dir, verbose)
 
         # Flatten file structure (subdirectories mess with some readers)
         files_moved = 1
@@ -85,27 +85,44 @@ class ComicMerge:
     # Both start_idx and end_idx are inclusive
     # Index count starts at 1
     def comics_from_indices(start_idx, end_idx):
+        all_comics = ComicMerge.comics_in_folder()
         comics = []
         comic_idx = 1
+        for file_name in all_comics:
+            if start_idx <= comic_idx and (comic_idx <= end_idx or end_idx < 0):
+                comics.append(file_name)
+            comic_idx += 1
+        return comics
+
+    @staticmethod
+    def comics_from_prefix(prefix):
+        all_comics = ComicMerge.comics_in_folder()
+        comics = []
+        for file_name in all_comics:
+            if file_name.startswith(prefix):
+                comics.append(file_name)
+        return comics
+
+    @staticmethod
+    def comics_in_folder():
+        comics = []
         for file_name in os.listdir('.'):  # We're not traversing subdirectories because that's a boondoggle
             if os.path.splitext(file_name)[1] == '.cbz':
-                if start_idx <= comic_idx and (comic_idx <= end_idx or end_idx < 0):
-                    comics.append(file_name)
-                comic_idx += 1
+                comics.append(file_name)
         return comics
 
     def merge(self):
         # Remove existing file, if any (we're going to overwrite it anyway)
         self._remove_file(self.output_name)
 
-        self._log('Merging comics ' + str(self.start_idx) + '-' + str(self.end_idx) + ' into file ' + self.output_name)
+        self._log('Merging comics ' + str(self.comics_to_merge) + ' into file ' + self.output_name)
 
         # Find and create temporary directory
         # (we don't want to use a static one, no need to mess with something extant)
         temp_dir = self._find_temp_folder()
         os.mkdir(temp_dir)
 
-        self._extract_comics(temp_dir)
+        self._extract_comics(self.comics_to_merge, temp_dir, self.is_verbose)
         self._make_cbz_from_dir(temp_dir)
 
         # Clean up temporary folder
