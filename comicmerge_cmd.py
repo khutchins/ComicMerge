@@ -10,7 +10,7 @@ parser.add_argument('-p', '--prefix', type=str, help='Prefix to restrict comics 
 parser.add_argument('-r', '--range', nargs=2, metavar=('start', 'end'), type=int,
 					help='Specified by the format X Y. Only the Xth to Yth comic in the folder will be merged into the '
 						 'output file.')
-# parser.add_argument('-n', '--nested', action='store_true', help='Don\'t flatten the directory tree, ')
+parser.add_argument('-f', '--folders', action='store_true', help='Don\'t flatten the directory tree, keep subfolders')
 args = parser.parse_args()
 
 if args.prefix is not None: # prefix is king
@@ -25,5 +25,5 @@ elif args.range is None: # no range = all comics in folder
 else:
 	raise "ran out of options for comic input: no range, no prefix, no comics in folder apparently."
 	
-comic_merge = ComicMerge(args.output_name, comics_to_merge, args.verbose)
+comic_merge = ComicMerge(args.output_name, comics_to_merge, args.verbose, args.folders)
 comic_merge.merge()
