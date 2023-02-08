@@ -29,7 +29,7 @@ options:
   
 ### notes:
 - This script will probably work on Linux, Mac, and Windows, but it has only been tested on Windows.
-- The `-f`/`--folders` flag was tested on PockedBook Touch Lux 4, it does create chapters internally in it's reader
+- The `-f`/`--folders` flag was tested on PocketBook Touch Lux 4, it does create chapters internally in it's reader.
 
 
 
