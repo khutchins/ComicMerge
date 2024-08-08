@@ -52,7 +52,7 @@ class ComicMerge:
         # Flatten file structure (subdirectories mess with some readers)
         files_moved = 1
         for path_to_dir, subdir_names, file_names in os.walk(temp_dir, True):
-            for subdir_name in ComicMerge._natsorted(subdir_names):
+            for subdir_name in ComicMerge.natsorted(subdir_names):
                 for path_to_dir2, subdir_names2, file_names2 in os.walk(f"{temp_dir}/{subdir_name}"):
                     for file_name in file_names2:
                         file_path = os.path.join(path_to_dir2, file_name)
