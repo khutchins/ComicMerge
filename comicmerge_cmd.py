@@ -14,7 +14,7 @@ args = parser.parse_args()
 
 if args.prefix is not None:
     comics_to_merge = ComicMerge.comics_from_prefix(args.prefix)
-elif (len(args.range)) == 0:
+elif (len(args.range)) is None:
     comics_to_merge = ComicMerge.comics_from_indices(0, -1)
 else:
     comics_to_merge = ComicMerge.comics_from_indices(args.range[0], args.range[1])
