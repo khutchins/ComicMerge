@@ -162,6 +162,6 @@ pip-log.txt
 # Mac crap
 .DS_Store
 
-# all used and created files
-.gitignore
-
+# Comics and merge directories
+*.cbz
+temp_merge*/
