@@ -161,3 +161,7 @@ pip-log.txt
 
 # Mac crap
 .DS_Store
+
+# Comics and merge directories
+*.cbz
+temp_merge*/

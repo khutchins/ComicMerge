@@ -1,6 +1,7 @@
 import os
 import shutil
 import zipfile
+import re
 
 
 class ComicMerge:
@@ -50,14 +51,16 @@ class ComicMerge:
 
         # Flatten file structure (subdirectories mess with some readers)
         files_moved = 1
-        for path_to_dir, subdir_names, file_names in os.walk(temp_dir, False):
-            for file_name in file_names:
-                file_path = os.path.join(path_to_dir, file_name)
-                ext = os.path.splitext(file_name)[1]
-                new_name = 'P' + str(files_moved).rjust(5, '0') + ext
-                ComicMerge._log_static('Renaming & moving ' + file_name + ' to ' + new_name, verbose)
-                shutil.copy(file_path, os.path.join(temp_dir, new_name))
-                files_moved += 1
+        for path_to_dir, subdir_names, file_names in os.walk(temp_dir, True):
+            for subdir_name in ComicMerge.natsorted(subdir_names):
+                for path_to_dir2, subdir_names2, file_names2 in os.walk(f"{temp_dir}/{subdir_name}"):
+                    for file_name in file_names2:
+                        file_path = os.path.join(path_to_dir2, file_name)
+                        ext = os.path.splitext(file_name)[1]
+                        new_name = 'P' + str(files_moved).rjust(5, '0') + ext
+                        ComicMerge._log_static('Renaming & moving ' + file_name + ' to ' + new_name, verbose)
+                        shutil.copy(file_path, os.path.join(temp_dir, new_name))
+                        files_moved += 1
 
             # Deletes all subdirectories (in the end we want a flat structure)
             # This will not affect walking through the rest of the directories,
@@ -111,6 +114,12 @@ class ComicMerge:
                 comics.append(file_name)
         return comics
 
+    @staticmethod
+    def natsorted(l):
+        convert = lambda text: int(text) if text.isdigit() else text.lower()
+        alphanum_key = lambda key: [convert(c) for c in re.split('([0-9]+)', key)]
+        return sorted(l, key=alphanum_key)
+    
     def merge(self):
         # Remove existing file, if any (we're going to overwrite it anyway)
         self._remove_file(self.output_name)
