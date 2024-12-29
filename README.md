@@ -2,7 +2,7 @@
 
 ## Description
 
-This is a simple tool that allows you to merge multiple .cbz files into a single .cbz file.
+This is a simple tool that allows you to merge multiple .cbz files into a single .cbz file. If you just want something a web page that can do that, try [ComicMergeJS](https://khutchins.github.io/ComicMergeJS/).
 
 ## Usage
 
