@@ -18,5 +18,6 @@ elif args.range is None:
     comics_to_merge = ComicMerge.comics_from_indices(0, -1)
 else:
     comics_to_merge = ComicMerge.comics_from_indices(args.range[0], args.range[1])
+comics_to_merge.sort()
 comic_merge = ComicMerge(args.output_name, comics_to_merge, args.verbose)
 comic_merge.merge()
